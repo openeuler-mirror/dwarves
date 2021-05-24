@@ -4,7 +4,7 @@
 
 Name: dwarves
 Version: 1.17
-Release: 1
+Release: 2
 License: GPLv2
 Summary: Debugging Information Manipulation Tools
 URL: http://acmel.wordpress.com
@@ -15,6 +15,8 @@ BuildRequires: gcc
 BuildRequires: cmake
 BuildRequires: zlib-devel
 BuildRequires: elfutils-devel >= 0.170
+
+Patch6000:   dtagnames-stop-using-the-deprecated-mallinfo-function.patch
 
 %description
 dwarves is a set of tools that use the debugging information inserted in
@@ -78,6 +80,12 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/%{libname}_reorganize.so
 
 %changelog
+* Mon May 24 2021 xiaqirong <xiaqirong1@huawei.com> - 1.17-2
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC:bugfix about stopping using the deprecated mallinfo function 
+
 * Wed Sep 16 2020 xiaqirong <xiaqirong1@huawei.com> - 1.17-1
 - Type:package init
 - ID:NA
