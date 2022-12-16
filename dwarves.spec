@@ -1,22 +1,22 @@
 %define libname libdwarves
 %define libver 1
-%define libbpfver 0.1.0
+%define libbpfver 393a058
 
 Name: dwarves
-Version: 1.17
-Release: 2
+Version: 1.22
+Release: 1
 License: GPLv2
 Summary: Debugging Information Manipulation Tools
 URL: http://acmel.wordpress.com
 Source: http://github.com/acmel/dwarves/archive/v%{version}.tar.gz
-Source1: http://github.com/libbpf/libbpf/archive/v%{libbpfver}.tar.gz
+Source1: http://github.com/libbpf/libbpf/archive/%{libbpfver}.tar.gz
 Requires: %{libname}%{libver} = %{version}-%{release}
 BuildRequires: gcc
 BuildRequires: cmake
 BuildRequires: zlib-devel
 BuildRequires: elfutils-devel >= 0.170
 
-Patch6000:   dtagnames-stop-using-the-deprecated-mallinfo-function.patch
+Patch0: replace-deprecated-libbpf-APIs-with-new-ones.patch
 
 %description
 dwarves is a set of tools that use the debugging information inserted in
@@ -41,6 +41,10 @@ Debugging information processing library development files.
 tar -zxvf %{SOURCE1} --strip-components 1 -C %{_builddir}/%{name}-%{version}/lib/bpf/
 
 %build
+# Remove _FORTIFY_SOURCE from CFLAGS or else will get below error:
+# error: #warning _FORTIFY_SOURCE requires compiling with optimization (-O) [-Werror=cpp]
+export CFLAGS=$(echo %optflags | sed -e 's/-Wp,-D_FORTIFY_SOURCE=2//g')
+
 %cmake .
 make VERBOSE=1 %{?_smp_mflags}
 
@@ -80,6 +84,12 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/%{libname}_reorganize.so
 
 %changelog
+* Mon Mar 21 2022 - Kai Liu <kai.liu@suse.com> - 1.22-1
+- Upgrade to v1.22. Also upgrade bundled libbpf to commit 393a058,
+  the same as upstream submodule version.
+  Introduce a patch from upstream commit 73383b3a3 to avoid using
+  deprecated libbpf APIs.
+
 * Mon May 24 2021 xiaqirong <xiaqirong1@huawei.com> - 1.17-2
 - Type:bugfix
 - ID:NA
