@@ -1,0 +1,59 @@
+From 66d12e4790b7c5e508b75e805589849fee782a49 Mon Sep 17 00:00:00 2001
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
+Date: Tue, 2 Feb 2021 09:38:46 -0300
+Subject: [PATCH] dtagnames: Stop using the deprecated mallinfo() function
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bulding on fedora rawhide gets us:
+
+  /home/acme/git/pahole/dtagnames.c:17:16: error: ‘mallinfo’ is deprecated [-Werror=deprecated-declarations]
+     17 |         struct mallinfo m = mallinfo();
+        |                ^~~~~~~~
+  In file included from /home/acme/git/pahole/dtagnames.c:10:
+  /usr/include/malloc.h:118:24: note: declared here
+    118 | extern struct mallinfo mallinfo (void) __THROW __MALLOC_DEPRECATED;
+        |                        ^~~~~~~~
+  cc1: all warnings being treated as errors
+
+glibc-2.32.9000-26.fc34.x86_64
+
+So stop using it, was just for debugging/assessing memory usage.
+
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+---
+ dtagnames.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/dtagnames.c b/dtagnames.c
+index 0ffcbf7..6a24c37 100644
+--- a/dtagnames.c
++++ b/dtagnames.c
+@@ -7,18 +7,10 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <malloc.h>
+ 
+ #include "dwarves.h"
+ #include "dutil.h"
+ 
+-static void print_malloc_stats(void)
+-{
+-	struct mallinfo m = mallinfo();
+-
+-	fprintf(stderr, "size: %u\n", m.uordblks);
+-}
+-
+ static int class__tag_name(struct tag *tag, struct cu *cu __unused,
+ 			   void *cookie __unused)
+ {
+@@ -54,7 +46,6 @@ int main(int argc __unused, char *argv[])
+ 	}
+ 
+ 	cus__dump_class_tag_names(cus);
+-	print_malloc_stats();
+ 	rc = EXIT_SUCCESS;
+ out:
+ 	cus__delete(cus);
