@@ -4,7 +4,7 @@
 
 Name: dwarves
 Version: 1.22
-Release: 1
+Release: 2
 License: GPLv2
 Summary: Debugging Information Manipulation Tools
 URL: http://acmel.wordpress.com
@@ -17,6 +17,7 @@ BuildRequires: zlib-devel
 BuildRequires: elfutils-devel >= 0.170
 
 Patch0: replace-deprecated-libbpf-APIs-with-new-ones.patch
+Patch1: backport-dwarf_loader-Support-DW_TAG_label-outside-DW_TAG_lex.patch
 
 %description
 dwarves is a set of tools that use the debugging information inserted in
@@ -84,6 +85,14 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/%{libname}_reorganize.so
 
 %changelog
+* Mon Mar 21 2022 - Kai Liu <kai.liu@suse.com> - 1.22-2
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC: Fix spew of warnings if build kernel with LLVM and
+  CONFIG_DEBUG_INFO_BTF after commit 32ef9e5054ec
+  ("Makefile.debug: re-enable debug info for .S files")
+
 * Mon Mar 21 2022 - Kai Liu <kai.liu@suse.com> - 1.22-1
 - Upgrade to v1.22. Also upgrade bundled libbpf to commit 393a058,
   the same as upstream submodule version.
